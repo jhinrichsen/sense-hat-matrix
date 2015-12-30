@@ -1,0 +1,33 @@
+= sense-hat-matrix
+
+image::https://img.shields.io/badge/ES-2015-brightgreen.svg[ES2015, link="http://www.ecma-international.org/ecma-262/6.0/index.html"]
+
+image::https://img.shields.io/travis/jhinrichsen/sense-hat-matrix.svg[Travis build status, link="https://travis-ci.org/jhinrichsen/sense-hat-matrix"]
+
+image::https://www.bithound.io/github/jhinrichsen/sense-hat-matrix/badges/score.svg[bithound, link="https://www.bithound.io/github/jhinrichsen/sense-hat-matrix"]
+
+Control a Raspberry Pi Sense HAT LED Display
+
+Work in progress. Your mileage may vary.
+
+=== Why yet another Sense HATo library?
+
+The state of affairs in Dec 2015 offers the following alternatives.
+
+==== python-sense-hat
+
+First, there's the original library supported by the Raspberry team 
+(https://github.com/RPi-Distro/python-sense-hat).
+Use this one for the best user experience.
+One drawback is that it is written in Python.
+
+==== nodeimu
+
+A Javascript wrapper for RTIMULib2 (https://github.com/rupnikj/nodeimu).
+It _does_ supports gravity, air pressure, humidity and temperature, but not the matrix LED.
+
+==== raspberry-sensor-sense-hat
+
+From https://github.com/teuteuguy/raspberry-sensor-sense-hat.
+Supports the matrix LED, but only via embedded python shell script escapes.
+
