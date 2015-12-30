@@ -10,7 +10,7 @@ Control a Raspberry Pi Sense HAT LED Display
 
 Work in progress. Your mileage may vary.
 
-=== Why yet another Sense HATo library?
+=== Why yet another Sense HAT library?
 
 The state of affairs in Dec 2015 offers the following alternatives.
 
@@ -18,8 +18,9 @@ The state of affairs in Dec 2015 offers the following alternatives.
 
 First, there's the original library supported by the Raspberry team 
 (https://github.com/RPi-Distro/python-sense-hat).
-Use this one for the best user experience.
-One drawback is that it is written in Python.
+Use this one for best user experience.
+One feature is that it is written in Python.
+This is a drawback if you want to be plain Javascript.
 
 ==== nodeimu
 
