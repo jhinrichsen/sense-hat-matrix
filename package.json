@@ -1,0 +1,26 @@
+{
+  "name": "sense-hat-matrix",
+  "version": "0.1.0",
+  "description": "Vanilla ES2015 support for Raspberry Pi Sense HAT LED Matrix",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jhinrichsen/sense-hat-matrix.git"
+  },
+  "keywords": [
+    "raspberry",
+    "pi",
+    "sense-hat",
+    "functional",
+    "es2015"
+  ],
+  "author": "Jochen Hinrichsen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jhinrichsen/sense-hat-matrix/issues"
+  },
+  "homepage": "https://github.com/jhinrichsen/sense-hat-matrix#readme"
+}
