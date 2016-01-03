@@ -29,6 +29,9 @@ const fsp = require('fs-promise'),
     return p;
   },
 
+  // Return a /dev/<device> name for a given framebuffer
+  devname = path => `/dev/${path.split('/').reverse()[0]}`,
+
   // Returns an Optional, which is also called a Maybe in other languages
   fb = prospects.then(a => {
     let r = Stream(a)
@@ -40,7 +43,7 @@ const fsp = require('fs-promise'),
 
   rc = fb.then(a => {
     if (a.isPresent()) {
-      const led = a.get();
+      const led = devname(a.get());
       console.log(`Found framebuffer ${led}`);
       return led;
     } else {
