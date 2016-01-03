@@ -41,6 +41,30 @@ const fsp = require('fs-promise'),
     return r;
   }),
 
+  // Decodes 16 bit RGB565 into list [R,G,B]
+  rgb = n => {
+    let r = (n & 0xF800) >> 11,
+      g = (n & 0x7E0) >> 5,
+      b = (n & 0x1F),
+      rc = [ r << 3, g << 2, b << 3 ];
+    return rc;
+  },
+
+  // Returns a list of [R,G,B] representing the pixel specified by x and y
+  // on the LED matrix. Top left = 0,0 Bottom right = 7,7
+  getPixel = (fb, x, y) => {
+    if (x < 0 || x > 7) throw new Error(`x=${x} violates 0 <= x <= 7`);
+    if (y < 0 || y > 7) throw new Error(`y=${y} violates 0 <= y <= 7`);
+    // TODO support rotation
+    
+    // Two bytes per pixel in fb memory, 16 bit RGB565
+    const fd = fsp.openSync(fb, 'r');
+    // fread() supports no sync'd version, so read in all 8 x 8 x 2 bytes in one shot
+    const buf = fsp.readFileSync(fd);
+    const n = buf.readUInt16BE(y * 8 + x);
+    return rgb(n);
+  },
+
   rc = fb.then(a => {
     if (a.isPresent()) {
       const led = devname(a.get());
@@ -51,6 +75,10 @@ const fsp = require('fs-promise'),
 	      'Are we running on a Pi?');
       return null;
     }
+  }),
+
+  rrc = rc.then(fb => {
+    console.log(`Pixel (0,0) = ${getPixel(fb, 0, 0)}`);
   });
   
 // EOF
