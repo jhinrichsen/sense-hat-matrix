@@ -127,11 +127,7 @@ const fsp = require('fs-promise'),
     for (let n = 1; --n >= 0; ) {
       for (let y = 8; --y >= 0; ) {
         for (let x = 8; --x >= 0; ) {
-          // setPixel(fb, x, y, [random(0, 255), random(0, 255), random(0, 255)]);
-          // setPixel(fb, x, y, [8 * x, 8 * y, 24]);
-          let v = (1 + y) * 32 * 256 + (1 + x) * 32;
-console.log(v);
-          setPixel(fb, x, y, unpack(v));
+          setPixel(fb, x, y, [random(0, 255), random(0, 255), random(0, 255)]);
         }
       }
     }
