@@ -1,15 +1,15 @@
 {
   "name": "sense-hat-matrix",
-  "version": "0.1.0",
   "description": "Vanilla ES2015 support for Raspberry Pi Sense HAT LED Matrix",
   "main": "index.js",
   "scripts": {
     "lint": "jshint index.js",
-    "test": "exit 0"
+    "test": "exit 0",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jhinrichsen/sense-hat-matrix.git"
+    "url": "https://github.com/jhinrichsen/sense-hat-matrix.git"
   },
   "keywords": [
     "raspberry",
@@ -28,5 +28,8 @@
     "fs-promise": "^0.3.1",
     "glob-promise": "^1.0.4",
     "streamjs": "^1.6.4"
+  },
+  "devDependencies": {
+    "semantic-release": "^4.3.5"
   }
 }
