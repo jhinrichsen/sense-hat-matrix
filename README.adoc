@@ -5,7 +5,7 @@ image::https://nodei.co/npm/sense-hat-matrix.png[alt="NPM",link="https://nodei.c
 image:https://img.shields.io/badge/ES-2015-brightgreen.svg[alt="ES2015",link="http://www.ecma-international.org/ecma-262/6.0/index.html"]
 image:https://img.shields.io/travis/jhinrichsen/sense-hat-matrix.svg[alt="Travis build status",link="https://travis-ci.org/jhinrichsen/sense-hat-matrix"]
 image:https://www.bithound.io/github/jhinrichsen/sense-hat-matrix/badges/score.svg[alt="bithound",link="https://www.bithound.io/github/jhinrichsen/sense-hat-matrix"]
-image:https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic-release-e10079.svg?style=flat-square[alt="semantic-release",link="https://github.com/semantic-release/semantic-release"]
+image:https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat-square[alt="semantic-release",link="https://github.com/semantic-release/semantic-release"]
 
 
 Control a Raspberry Pi Sense HAT LED Display
