@@ -6,6 +6,7 @@ image::https://img.shields.io/travis/jhinrichsen/sense-hat-matrix.svg[Travis bui
 
 image::https://www.bithound.io/github/jhinrichsen/sense-hat-matrix/badges/score.svg[bithound, link="https://www.bithound.io/github/jhinrichsen/sense-hat-matrix"]
 
+
 Control a Raspberry Pi Sense HAT LED Display
 
 Work in progress. Your mileage may vary.
