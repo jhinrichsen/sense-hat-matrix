@@ -6,6 +6,7 @@ const fsp = require('fs-promise'),
   glob = require('glob-promise'),
   path = require('path'),
   Stream = require('streamjs'),
+  matrixRotate90 = require('matrix-rotate'),
 
   // the framebuffer's name file
   namefile = framebuffer => path.join(framebuffer, 'name'),
@@ -59,9 +60,33 @@ const fsp = require('fs-promise'),
       bits = (r << 11) + (g << 5) + b;
     return bits;
   },
-
-  // Map (x, y) into absolute byte position
-  pos = (x, y) => 2 * (y * 8 + x),
+  
+  pix_map0 = [[0,  1,  2,  3,  4,  5,  6,  7],
+             [8,  9, 10, 11, 12, 13, 14, 15],
+            [16, 17, 18, 19, 20, 21, 22, 23],
+            [24, 25, 26, 27, 28, 29, 30, 31],
+            [32, 33, 34, 35, 36, 37, 38, 39],
+            [40, 41, 42, 43, 44, 45, 46, 47],
+            [48, 49, 50, 51, 52, 53, 54, 55],
+            [56, 57, 58, 59, 60, 61, 62, 63]],
+            
+  pix_map90  = MatrixRotate90(pix_map0),
+  
+  pix_map180 = MatrixRrotate90(pix_map90),
+  
+  pix_map270 = MatrixRrotate90(pix_map180), 
+  
+  pix_map = {
+  	     0: pix_map0,
+             90: pix_map90,
+            180: pix_map180,
+            270: pix_map270
+        },
+        
+  rotation = 0,
+  
+  // Map (x, y) into rotated absolute byte position
+  pos = (x, y) => pix_map[rotation][y][x] * 2,
 
   // Returns a list of [R,G,B] representing the pixel specified by x and y
   // on the LED matrix. Top left = 0,0 Bottom right = 7,7
@@ -78,7 +103,7 @@ const fsp = require('fs-promise'),
     const n = buf.readUInt16LE(pos(x, y));
     return unpack(n);
   },
-
+  
   setPixel = (fb, x, y, rgb) => {
     if (x < 0 || x > 7) throw new Error(`x=${x} violates 0 <= x <= 7`);
     if (y < 0 || y > 7) throw new Error(`y=${y} violates 0 <= y <= 7`);
