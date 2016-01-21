@@ -135,7 +135,7 @@ const fsp = require('fs-promise'),
         buf = new Buffer(2),
         n = pack(rgb);
     buf.writeUInt16LE(n);
-    fsp.writeSync(fd, 
+    fsp.writeSync(fd,
       buf, 0, buf.length,
       pos(x, y),
       // Wait for write to return
@@ -147,27 +147,27 @@ const fsp = require('fs-promise'),
   // updates the LED matrix. R,G,B elements must intergers between 0
   // and 255
   setPixels = (fb, pixelList) => {
-  if (pixelList.length != 64) throw new Error('Pixel lists must have 64 elements');
-  
-  pixelList.forEach((fb, pix, index) => {
-    let x = Math.floor(index/8),
-        y = index % 8;
-        
-    setPixel(fb, x, y, pix);
-  });
-},
+    if (pixelList.length != 64) throw new Error('Pixel lists must have 64 elements');
+    
+    pixelList.forEach((fb, pix, index) => {
+      let x = Math.floor(index/8),
+          y = index % 8;
+          
+      setPixel(fb, x, y, pix);
+    });
+  },
 
-//  Returns a list containing 64 smaller lists of [R,G,B] pixels
-//  representing what is currently displayed on the LED matrix
-getPixels = (fb) => {
-  let pixelList=[];
-  for (let row = 0; row < 8; row++){
-    for (let col = 0; col < 8; row++){
-      pixelList.push(getPixel(fb, col, row));
+  //  Returns a list containing 64 smaller lists of [R,G,B] pixels
+  //  representing what is currently displayed on the LED matrix
+  getPixels = (fb) => {
+    let pixelList=[];
+    for (let row = 0; row < 8; row++){
+      for (let col = 0; col < 8; row++){
+        pixelList.push(getPixel(fb, col, row));
+      }
     }
-  }
-  return pixelList;
-},
+    return pixelList;
+  },
 
   clear = fb => {
     for (let y = 8; --y >= 0; ) {
@@ -176,7 +176,31 @@ getPixels = (fb) => {
       }
     }
   },
-
+  
+  // Flip LED matrix horizontal
+  flipH = (fb, redraw) =>{
+    let pixelList = getPixels(fb),
+        flipped = [];
+    
+    while(pixelList.Length){
+      flipped.concat(pixelList.splice(8).reverse());
+    }
+    if (redraw) setPixels(fb, flipped);
+    return flipped;
+  },
+  
+   // Flip LED matrix vertical
+  flipV = (fb,redraw) =>{
+    let pixelList = getPixels(fb),
+        flipped = [];
+    
+    while(pixelList.Length){
+      flipped.concat(pixelList.splice(pixelList.Length-8,8));
+    }
+    if (redraw) setPixels(fb, flipped);
+    return flipped;
+  },
+  
   rc = fb.then(a => {
     if (a.isPresent()) {
       const led = devname(a.get());
