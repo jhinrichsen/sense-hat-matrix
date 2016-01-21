@@ -1,12 +1,13 @@
 // Find our matrix in all available framebuffers
 
 "use strict";
+let rotation = 0;
 
 const fsp = require('fs-promise'),
   glob = require('glob-promise'),
   path = require('path'),
   Stream = require('streamjs'),
-  matrixRotate90 = require('matrix-rotate'),
+  rotateMatrix = require('rotate-matrix'),
 
   // the framebuffer's name file
   namefile = framebuffer => path.join(framebuffer, 'name'),
@@ -61,40 +62,61 @@ const fsp = require('fs-promise'),
     return bits;
   },
   
-  pix_map0 = [[0,  1,  2,  3,  4,  5,  6,  7],
-             [8,  9, 10, 11, 12, 13, 14, 15],
-            [16, 17, 18, 19, 20, 21, 22, 23],
-            [24, 25, 26, 27, 28, 29, 30, 31],
-            [32, 33, 34, 35, 36, 37, 38, 39],
-            [40, 41, 42, 43, 44, 45, 46, 47],
-            [48, 49, 50, 51, 52, 53, 54, 55],
-            [56, 57, 58, 59, 60, 61, 62, 63]],
+  pixMap0 =  [[ 0,  1,  2,  3,  4,  5,  6,  7],
+              [ 8,  9, 10, 11, 12, 13, 14, 15],
+              [16, 17, 18, 19, 20, 21, 22, 23],
+              [24, 25, 26, 27, 28, 29, 30, 31],
+              [32, 33, 34, 35, 36, 37, 38, 39],
+              [40, 41, 42, 43, 44, 45, 46, 47],
+              [48, 49, 50, 51, 52, 53, 54, 55],
+              [56, 57, 58, 59, 60, 61, 62, 63]],
             
-  pix_map90  = MatrixRotate90(pix_map0),
+  pixMap90  = rotateMatrix(pixMap0),
   
-  pix_map180 = MatrixRrotate90(pix_map90),
+  pixMap180 = rotateMatrix(pixMap90),
   
-  pix_map270 = MatrixRrotate90(pix_map180), 
+  pixMap270 = rotateMatrix(pixMap180),
   
-  pix_map = {
-  	     0: pix_map0,
-             90: pix_map90,
-            180: pix_map180,
-            270: pix_map270
+  pixMap = {
+      	      0: pixMap0,
+             90: pixMap90,
+            180: pixMap180,
+            270: pixMap270
         },
-        
-  rotation = 0,
+  
+  setRotation = (r, redraw) => {
+  //Sets the LED matrix rotation for viewing, adjust if the Pi is upside
+  //down or sideways. 0 is with the Pi HDMI port facing downwards
+  
+    if (r === undefined) {
+      r = 0;
+    }
+    
+    if (redraw === undefined) {
+      redraw = true;
+    }
+    
+    if (r in pixMap){
+      if (redraw){
+        let pixelList = getPixels();
+        rotation = r;
+        setPixels(pixelList);
+      }else{
+        rotation = r;
+      }
+    }else{
+      throw new Error('Rotation must be 0, 90, 180 or 270 degrees');
+    }
+  },
   
   // Map (x, y) into rotated absolute byte position
-  pos = (x, y) => pix_map[rotation][y][x] * 2,
+  pos = (x, y) => pixMap[rotation][y][x] * 2,
 
   // Returns a list of [R,G,B] representing the pixel specified by x and y
   // on the LED matrix. Top left = 0,0 Bottom right = 7,7
   getPixel = (fb, x, y) => {
     if (x < 0 || x > 7) throw new Error(`x=${x} violates 0 <= x <= 7`);
     if (y < 0 || y > 7) throw new Error(`y=${y} violates 0 <= y <= 7`);
-    // TODO support rotation
-    
     // Two bytes per pixel in fb memory, 16 bit RGB565
     const fd = fsp.openSync(fb, 'r');
     // fread() supports no sync'd version, so read in all 8 x 8 x 2 bytes in one shot
@@ -112,10 +134,10 @@ const fsp = require('fs-promise'),
         ` [0, 0, 0] < RGB < [255, 255, 255]`);
       return col;
     });
-    // TODO support rotation
+
     let fd = fsp.openSync(fb, 'w'),
-      buf = new Buffer(2),
-      n = pack(rgb);
+        buf = new Buffer(2),
+        n = pack(rgb);
     buf.writeUInt16LE(n);
     fsp.writeSync(fd, 
       buf, 0, buf.length,
@@ -124,6 +146,32 @@ const fsp = require('fs-promise'),
       (error, written, _) => console.log(`Wrote ${written} bytes`));
     fsp.closeSync(fd);
   },
+  
+  // Accepts a list containing 64 smaller lists of [R,G,B] pixels and
+  // updates the LED matrix. R,G,B elements must intergers between 0
+  // and 255
+  setPixels = (fb, pixelList) => {
+  if (pixelList.length != 64) throw new Error('Pixel lists must have 64 elements');
+  
+  pixelList.forEach((fb, pix, index) => {
+    let x = Math.floor(index/8),
+        y = index % 8;
+        
+    setPixel(fb, x, y, pix);
+  });
+},
+
+//  Returns a list containing 64 smaller lists of [R,G,B] pixels
+//  representing what is currently displayed on the LED matrix
+getPixels = (fb) => {
+  let pixelList=[];
+  for (let row = 0; row < 8; row++){
+    for (let col = 0; col < 8; row++){
+      pixelList.push(getPixel(fb, col, row));
+    }
+  }
+  return pixelList;
+},
 
   clear = fb => {
     for (let y = 8; --y >= 0; ) {
