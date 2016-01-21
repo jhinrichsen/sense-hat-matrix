@@ -87,14 +87,10 @@ const fsp = require('fs-promise'),
   setRotation = (r, redraw) => {
   //Sets the LED matrix rotation for viewing, adjust if the Pi is upside
   //down or sideways. 0 is with the Pi HDMI port facing downwards
-  
-    if (r === undefined) {
-      r = 0;
-    }
     
-    if (redraw === undefined) {
-      redraw = true;
-    }
+    //defaults
+    if (r === undefined) r = 0;
+    if (redraw === undefined) redraw = true;
     
     if (r in pixMap){
       if (redraw){
