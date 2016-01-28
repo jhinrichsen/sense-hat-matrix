@@ -83,24 +83,23 @@ const fsp = require('fs-promise'),
             180: pixMap180,
             270: pixMap270
         },
-  
-  setRotation = (r, redraw) => {
+
   //Sets the LED matrix rotation for viewing, adjust if the Pi is upside
   //down or sideways. 0 is with the Pi HDMI port facing downwards
-    
+  setRotation = (r, redraw) => {
     //defaults
     if (r === undefined) r = 0;
     if (redraw === undefined) redraw = true;
-    
-    if (r in pixMap){
-      if (redraw){
-        let pixelList = getPixels();
+  
+    if (r in pixMap) {
+      if (redraw) {
+        let pixelList = getPixels(fb);
         rotation = r;
-        setPixels(pixelList);
-      }else{
+        setPixels(fb, pixelList);
+      } else {
         rotation = r;
       }
-    }else{
+    } else {
       throw new Error('Rotation must be 0, 90, 180 or 270 degrees');
     }
   },
@@ -149,41 +148,59 @@ const fsp = require('fs-promise'),
   setPixels = (fb, pixelList) => {
     if (pixelList.length != 64) throw new Error('Pixel lists must have 64 elements');
     
-    pixelList.forEach((fb, pix, index) => {
-      let x = Math.floor(index/8),
-          y = index % 8;
-          
-      setPixel(fb, x, y, pix);
+    let buf = new Buffer(128); // 8 x 8 pixels x 2 bytes
+  
+    pixelList.forEach((rgb, index) => {
+      rgb.forEach(col => {
+        if (col < 0 || col > 255) throw new Error(`RGB color ${rgb} violates` +
+          ` [0, 0, 0] < RGB < [255, 255, 255]`);
+      });
+      let x = Math.floor(index / 8);
+      let y = index % 8;
+      buf.writeUInt16LE(pack(rgb), pos(x, y));
     });
+  
+    let fd = fsp.openSync(fb, 'w');
+    fsp.writeSync(fd, buf, 0, buf.length, 0);
+    fsp.closeSync(fd);
   },
 
   //  Returns a list containing 64 smaller lists of [R,G,B] pixels
   //  representing what is currently displayed on the LED matrix
   getPixels = (fb) => {
-    let pixelList=[];
-    for (let row = 0; row < 8; row++){
-      for (let col = 0; col < 8; row++){
-        pixelList.push(getPixel(fb, col, row));
+    let pixelList = [];
+  
+    // Two bytes per pixel in fb memory, 16 bit RGB565
+    const fd = fsp.openSync(fb, 'r');
+    // fread() supports no sync'd version, so read in all 8 x 8 x 2 bytes in one shot
+    const buf = fsp.readFileSync(fd);
+    fsp.closeSync(fd);
+  
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        pixelList.push(unpack(buf.readUInt16LE(pos(x, y))));
       }
     }
     return pixelList;
   },
 
-  clear = fb => {
-    for (let y = 8; --y >= 0; ) {
-      for (let x = 8; --x >= 0; ) {
-        setPixel(fb, x, y, [0, 0, 0]);
-      }
+  clear = (fb, rgb) => {
+    if (rgb === undefined) rgb = [0, 0, 0];
+      
+    let pixelList=[];
+    for (let i=0; i<64; i++){
+      pixelList.push(rgb);
     }
+    setPixels(fb, pixelList);
   },
   
   // Flip LED matrix horizontal
   flipH = (fb, redraw) =>{
     let pixelList = getPixels(fb),
-        flipped = [];
-    
-    while(pixelList.Length){
-      flipped.concat(pixelList.splice(8).reverse());
+      flipped = [];
+      
+    while (pixelList.length) {
+      flipped = flipped.concat(pixelList.splice(0, 8).reverse());
     }
     if (redraw) setPixels(fb, flipped);
     return flipped;
@@ -192,10 +209,10 @@ const fsp = require('fs-promise'),
    // Flip LED matrix vertical
   flipV = (fb,redraw) =>{
     let pixelList = getPixels(fb),
-        flipped = [];
-    
-    while(pixelList.Length){
-      flipped.concat(pixelList.splice(pixelList.Length-8,8));
+      flipped = [];
+  
+    while (pixelList.length) {
+      flipped = flipped.concat(pixelList.splice(pixelList.length - 8, 8));
     }
     if (redraw) setPixels(fb, flipped);
     return flipped;
